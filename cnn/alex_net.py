@@ -16,12 +16,12 @@ def load_data():
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    train_data = torchvision.datasets.CIFAR10(root='./datasets/alexnet/train', train=True, download=True, transform=preprocess)
+    train_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/train', train=True, download=True, transform=preprocess)
 
     trainloader = torch.utils.data.DataLoader(train_data, batch_size=4, shuffle=True, num_workers=4)
 
     # Downloading test data
-    test_data = torchvision.datasets.CIFAR10(root='./datasets/alexnet/test', train=False, download=True, transform=preprocess)
+    test_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/test', train=False, download=True, transform=preprocess)
 
     testloader = torch.utils.data.DataLoader(test_data, batch_size=4, shuffle=False, num_workers=4)
 
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     train_loader, test_loader = load_data()
 
-    MODEL_PATH = './dataset/alexnet/model.pth'
+    MODEL_PATH = './../models/alexnet/model.pth'
     model = train_model(model, train_loader, 5, MODEL_PATH)
 
     test_model(model, test_loader)
