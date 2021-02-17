@@ -99,7 +99,7 @@ def test_model(model, data_loader):
 if __name__ == '__main__':
     act = sys.argv[1]
     if act == "train":
-        epochs = sys.argv[2]
+        epochs = int(sys.argv[2])
         model = torch.hub.load('pytorch/vision:v0.6.0', 'alexnet', pretrained=True)
         model.eval()
 
