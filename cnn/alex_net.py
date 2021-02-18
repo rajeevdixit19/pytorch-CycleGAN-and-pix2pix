@@ -96,7 +96,7 @@ def test_model(model, data_loader):
             100 * correct / total))
 
 
-def get_model_data(mod_path, test_data_path):
+def get_model_data(test_data_path):
     return load_custom_test_data(test_data_path)
 
 
