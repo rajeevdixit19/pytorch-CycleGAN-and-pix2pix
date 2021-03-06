@@ -9,6 +9,7 @@ parser.add_argument('--fold_B', dest='fold_B', help='input directory for image B
 parser.add_argument('--fold_AB', dest='fold_AB', help='output directory', type=str, default='../dataset/test_AB')
 parser.add_argument('--num_imgs', dest='num_imgs', help='number of images',type=int, default=1000000)
 parser.add_argument('--use_AB', dest='use_AB', help='if true: (0001_A, 0001_B) to (0001_AB)',action='store_true')
+parser.add_argument('--resize', dest='resize', help='Resize B to make same size as A',type=bool, default=False)
 args = parser.parse_args()
 
 for arg in vars(args):
@@ -44,5 +45,11 @@ for sp in splits:
             path_AB = os.path.join(img_fold_AB, name_AB)
             im_A = cv2.imread(path_A, cv2.IMREAD_COLOR)
             im_B = cv2.imread(path_B, cv2.IMREAD_COLOR)
+
+            if args.resize:
+                width = im_A.shape[1]
+                height = im_A.shape[0]
+                im_B = cv2.resize(im_B, (width, height), interpolation=cv2.INTER_AREA)
+
             im_AB = np.concatenate([im_A, im_B], 1)
             cv2.imwrite(path_AB, im_AB)
