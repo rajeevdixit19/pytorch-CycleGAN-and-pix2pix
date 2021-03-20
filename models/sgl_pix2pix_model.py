@@ -75,7 +75,6 @@ class SglPix2PixModel(BaseModel):
 
         # Fake
         # stop backprop to the generator by detaching fake_B
-        fake_AB = self.fake_AB_pool.query(torch.cat((self.real_A, self.fake_B), 1))
         self.loss_D_fake = []
 
         # Real
@@ -83,6 +82,7 @@ class SglPix2PixModel(BaseModel):
         self.loss_D_real = []
 
         for i in range(self.num_learners):
+            fake_AB = self.fake_AB_pool.query(torch.cat((self.real_A, self.fake_B[i]), 1))
             pred_fake = self.netD[i](fake_AB.detach())
             self.loss_D_fake.append(self.criterionGAN(pred_fake, False))
 

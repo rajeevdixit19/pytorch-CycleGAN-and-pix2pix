@@ -133,20 +133,14 @@ class BaseModel():
         for name in self.model_names:
             if isinstance(name, str):
                 if self.name() == 'SglPix2PixModel':
-                    nets = getattr(self, 'net' + name[0:-1])
-                    for net in nets:
-                        num_params = 0
-                        for param in net.parameters():
-                            num_params += param.numel()
-                        if verbose:
-                            print(net)
-                        print('[Network %s] Total number of parameters : %.3f M' % (name, num_params / 1e6))
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
                 else:
                     net = getattr(self, 'net' + name)
-                    num_params = 0
-                    for param in net.parameters():
-                        num_params += param.numel()
-                    if verbose:
-                        print(net)
-                    print('[Network %s] Total number of parameters : %.3f M' % (name, num_params / 1e6))
+
+                num_params = 0
+                for param in net.parameters():
+                    num_params += param.numel()
+                if verbose:
+                    print(net)
+                print('[Network %s] Total number of parameters : %.3f M' % (name, num_params / 1e6))
         print('-----------------------------------------------')
