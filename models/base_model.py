@@ -27,7 +27,7 @@ class BaseModel():
     def forward(self):
         pass
 
-    # load and print networks; create shedulars
+    # load and print networks; create schedulers
     def setup(self, opt):
         if self.isTrain:
             self.schedulers = [networks.get_scheduler(optimizer, opt) for optimizer in self.optimizers]
