@@ -18,7 +18,7 @@ def load_data():
     ])
 
     train_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/train', train=True, download=True, transform=preprocess)
-
+    print(train_data.classes)
     trainloader = torch.utils.data.DataLoader(train_data, batch_size=4, shuffle=True, num_workers=4)
 
     # Downloading test data
@@ -37,17 +37,22 @@ def load_custom_test_data(data_path):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    train_dataset = torchvision.datasets.ImageFolder(
+    train_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/train', train=True, download=True,
+                                              transform=preprocess)
+    print(train_data.classes)
+
+    test_dataset = torchvision.datasets.ImageFolder(
         root=data_path,
         transform=preprocess,
     )
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset,
+    print(test_dataset.classes)
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
         batch_size=4,
         num_workers=4,
         shuffle=False
     )
-    return train_loader
+    return test_loader
 
 
 def train_model(model, data_loader, epochs, store_path):
