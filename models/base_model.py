@@ -86,7 +86,10 @@ class BaseModel():
             if isinstance(name, str):
                 save_filename = '%s_net_%s.pth' % (which_epoch, name)
                 save_path = os.path.join(self.save_dir, save_filename)
-                net = getattr(self, 'net' + name)
+                if self.name() == 'SglPix2PixModel':
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
+                else:
+                    net = getattr(self, 'net' + name)
 
                 if len(self.gpu_ids) > 0 and torch.cuda.is_available():
                     torch.save(net.module.cpu().state_dict(), save_path)
@@ -110,7 +113,10 @@ class BaseModel():
             if isinstance(name, str):
                 save_filename = '%s_net_%s.pth' % (which_epoch, name)
                 save_path = os.path.join(self.save_dir, save_filename)
-                net = getattr(self, 'net' + name)
+                if self.name() == 'SglPix2PixModel':
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
+                else:
+                    net = getattr(self, 'net' + name)
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 # if you are using PyTorch newer than 0.4 (e.g., built from
@@ -126,6 +132,16 @@ class BaseModel():
         print('---------- Networks initialized -------------')
         for name in self.model_names:
             if isinstance(name, str):
+                if self.name() == 'SglPix2PixModel':
+                    nets = getattr(self, 'net' + name[0:-1])
+                    for net in nets:
+                        num_params = 0
+                        for param in net.parameters():
+                            num_params += param.numel()
+                        if verbose:
+                            print(net)
+                        print('[Network %s] Total number of parameters : %.3f M' % (name, num_params / 1e6))
+
                 net = getattr(self, 'net' + name)
                 num_params = 0
                 for param in net.parameters():
