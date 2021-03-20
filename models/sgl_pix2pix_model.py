@@ -5,6 +5,7 @@ from util.image_pool import ImagePool
 from itertools import product
 import random
 
+
 class SglPix2PixModel(BaseModel):
     def name(self):
         return 'SglPix2PixModel'
