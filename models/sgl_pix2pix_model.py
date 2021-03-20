@@ -95,15 +95,17 @@ class SglPix2PixModel(BaseModel):
 
     def backward_G(self):
         # First, G(A) should fake the discriminator
+        self.loss_G_GAN = []
+        self.loss_G_L1 = []
         for i in range(self.num_learners):
             fake_AB = torch.cat((self.real_A, self.fake_B[i]), 1)
             pred_fake = self.netD[i](fake_AB)
-            self.loss_G_GAN = self.criterionGAN(pred_fake, True)
+            self.loss_G_GAN.append(self.criterionGAN(pred_fake, True))
 
             # Second, G(A) = B
-            self.loss_G_L1 = self.criterionL1(self.fake_B[i], self.real_B) * self.opt.lambda_A
+            self.loss_G_L1.append(self.criterionL1(self.fake_B[i], self.real_B) * self.opt.lambda_A)
 
-            self.loss_G = self.loss_G_GAN + self.loss_G_L1
+            self.loss_G = self.loss_G_GAN[i] + self.loss_G_L1[i]
 
             self.loss_G.backward()
 
@@ -114,7 +116,7 @@ class SglPix2PixModel(BaseModel):
             optim.zero_grad()
         self.backward_D()
         for optim in self.optimizer_D:
-            self.optimizer_D.step()
+            optim.step()
 
         for optim in self.optimizer_G:
             optim.zero_grad()
