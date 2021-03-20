@@ -54,8 +54,8 @@ class SglPix2PixModel(BaseModel):
                 self.optimizer_D.append(torch.optim.Adam(self.netD[i].parameters(),
                                                     lr=opt.lr, betas=(opt.beta1, 0.999)))
 
-            self.optimizers.append(self.optimizer_G)
-            self.optimizers.append(self.optimizer_D)
+            self.optimizers.extend(self.optimizer_G)
+            self.optimizers.extend(self.optimizer_D)
 
     def set_input(self, input):
         AtoB = self.opt.which_direction == 'AtoB'
