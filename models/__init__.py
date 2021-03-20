@@ -10,7 +10,7 @@ def create_model(opt):
         model = Pix2PixModel()
     elif opt.model == 'sgl_pix2pix':
         assert(opt.dataset_mode == 'aligned')
-        from .pix2pix_model import SglPix2PixModel
+        from .sgl_pix2pix_model import SglPix2PixModel
         model = SglPix2PixModel()
     elif opt.model == 'test':
         assert(opt.dataset_mode == 'single')
