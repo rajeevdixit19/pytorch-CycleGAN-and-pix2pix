@@ -114,7 +114,7 @@ class SglPix2PixModel(BaseModel):
             optim.zero_grad()
         self.backward_D()
         for optim in self.optimizer_D:
-            self.optimizer_D.step()
+            optim.step()
 
         for optim in self.optimizer_G:
             optim.zero_grad()
