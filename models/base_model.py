@@ -68,7 +68,12 @@ class BaseModel():
         visual_ret = OrderedDict()
         for name in self.visual_names:
             if isinstance(name, str):
-                visual_ret[name] = getattr(self, name)
+                if self.name() == "SglPix2PixModel" and name == 'fake_B':
+                        imgs = getattr(self, name)
+                        for i, img in enumerate(imgs):
+                            visual_ret[name + '_' + str(i + 1)] = img
+                else:
+                    visual_ret[name] = getattr(self, name)
         return visual_ret
 
     # return traning losses/errors. train.py will print out these errors as debugging information
