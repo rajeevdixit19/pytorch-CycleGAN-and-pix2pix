@@ -68,7 +68,7 @@ def load_custom_test_data(data_path):
     #     transform=preprocess,
     # )
 
-    test_dataset = SglDataset(data_path, transforms)
+    test_dataset = SglDataset(data_path, preprocess)
 
     test_loader = torch.utils.data.DataLoader(
         test_dataset,
