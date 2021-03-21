@@ -12,6 +12,7 @@ class SglDataset(torch.utils.data.Dataset):
     def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
         self.fnames = os.listdir(root_dir)
+        self.fnames.sort(key=lambda x: int(x[:4]))
         self.transform = transform
 
     def __len__(self):
@@ -20,7 +21,9 @@ class SglDataset(torch.utils.data.Dataset):
     def __getitem__(self, index):
         img_id = self.fnames[index]
         img = Image.open(os.path.join(self.root_dir, img_id)).convert("RGB")
-        y_label = torch.tensor(float(int(img_id[:4]) // 50))
+        y_label = torch.tensor(int(img_id[:4]) // 50)
+        if y_label >= 6:
+            y_label += 1
 
         if self.transform is not None:
             img = self.transform(img)
@@ -58,15 +61,6 @@ def load_custom_test_data(data_path):
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
-
-    # train_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/train', train=True, download=True,
-    #                                           transform=preprocess)
-    # print(train_data.classes)
-
-    # test_dataset = torchvision.datasets.ImageFolder(
-    #     root=data_path,
-    #     transform=preprocess,
-    # )
 
     test_dataset = SglDataset(data_path, preprocess)
 
