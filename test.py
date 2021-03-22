@@ -21,6 +21,7 @@ if __name__ == '__main__':
     web_dir = os.path.join(opt.results_dir, opt.name, '%s_%s' % (opt.phase, opt.which_epoch))
     webpage = html.HTML(web_dir, 'Experiment = %s, Phase = %s, Epoch = %s' % (opt.name, opt.phase, opt.which_epoch))
     # test
+    class_dict = {}
     for i, data in enumerate(dataset):
         if i >= opt.how_many:
             break
@@ -28,8 +29,11 @@ if __name__ == '__main__':
         model.test()
         visuals = model.get_current_visuals()
         img_path = model.get_image_paths()
-        if i % 5 == 0:
+        if len(visuals) == 5 and i % 5 == 0:
+            cls = img_path[0].split('/')[4]
+            class_dict[cls] = class_dict.get(cls, 0) + 1
             print('processing (%04d)-th image... %s' % (i, img_path))
         save_images(webpage, visuals, img_path, aspect_ratio=opt.aspect_ratio, width=opt.display_winsize)
 
+    print(class_dict)
     webpage.save()

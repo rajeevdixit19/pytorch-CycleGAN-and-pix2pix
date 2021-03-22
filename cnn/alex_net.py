@@ -12,6 +12,7 @@ class SglDataset(torch.utils.data.Dataset):
     def __init__(self, root_dir, transform=None):
         self.root_dir = root_dir
         self.fnames = os.listdir(root_dir)
+        self.fnames.remove('.ipynb_checkpoints')
         self.fnames.sort(key=lambda x: int(x[:4]))
         self.transform = transform
 

@@ -82,9 +82,12 @@ class BaseModel():
         for name in self.loss_names:
             if isinstance(name, str):
                 # float(...) works for both scalar tensor and float number
-                losses = getattr(self, 'loss_' + name)
-                for i, loss in enumerate(losses):
-                    errors_ret[name + '_' + str(i + 1)] = float(loss)
+                if self.name() == 'SglPix2PixModel':
+                    losses = getattr(self, 'loss_' + name)
+                    for i, loss in enumerate(losses):
+                        errors_ret[name + '_' + str(i + 1)] = float(loss)
+                else:
+                    errors_ret[name] = float(getattr(self, 'loss_' + name))
         return errors_ret
 
     # save models to the disk
