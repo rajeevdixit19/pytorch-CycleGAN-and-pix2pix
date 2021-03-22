@@ -4,6 +4,32 @@ from torchvision import transforms
 import torch.optim as optim
 import torch.nn as nn
 import sys
+import os
+from PIL import Image
+
+
+class SglDataset(torch.utils.data.Dataset):
+    def __init__(self, root_dir, transform=None):
+        self.root_dir = root_dir
+        self.fnames = os.listdir(root_dir)
+        self.fnames.remove('.ipynb_checkpoints')
+        self.fnames.sort(key=lambda x: int(x[:4]))
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.fnames)
+
+    def __getitem__(self, index):
+        img_id = self.fnames[index]
+        img = Image.open(os.path.join(self.root_dir, img_id)).convert("RGB")
+        y_label = torch.tensor(int(img_id[:4]) // 50)
+        if y_label >= 6:
+            y_label += 1
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return (img, y_label)
 
 
 def load_data():
@@ -18,7 +44,7 @@ def load_data():
     ])
 
     train_data = torchvision.datasets.CIFAR10(root='./../datasets/alexnet/train', train=True, download=True, transform=preprocess)
-
+    print(train_data.classes)
     trainloader = torch.utils.data.DataLoader(train_data, batch_size=4, shuffle=True, num_workers=4)
 
     # Downloading test data
@@ -37,17 +63,15 @@ def load_custom_test_data(data_path):
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-    train_dataset = torchvision.datasets.ImageFolder(
-        root=data_path,
-        transform=preprocess,
-    )
-    train_loader = torch.utils.data.DataLoader(
-        train_dataset,
-        batch_size=4,
+    test_dataset = SglDataset(data_path, preprocess)
+
+    test_loader = torch.utils.data.DataLoader(
+        test_dataset,
+        batch_size=3,
         num_workers=4,
         shuffle=False
     )
-    return train_loader
+    return test_loader
 
 
 def train_model(model, data_loader, epochs, store_path):

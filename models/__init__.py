@@ -32,16 +32,26 @@ def find_model_using_name(model_name):
     model_filename = "models." + model_name + "_model"
     modellib = importlib.import_module(model_filename)
     model = None
-    target_model_name = model_name.replace('_', '') + 'model'
-    for name, cls in modellib.__dict__.items():
-        if name.lower() == target_model_name.lower() \
-           and issubclass(cls, BaseModel):
-            model = cls
-
-    if model is None:
-        print("In %s.py, there should be a subclass of BaseModel with class name that matches %s in lowercase." % (model_filename, target_model_name))
-        exit(0)
-
+    if opt.model == 'cycle_gan':
+        assert(opt.dataset_mode == 'unaligned')
+        from .cycle_gan_model import CycleGANModel
+        model = CycleGANModel()
+    elif opt.model == 'pix2pix':
+        assert(opt.dataset_mode == 'aligned')
+        from .pix2pix_model import Pix2PixModel
+        model = Pix2PixModel()
+    elif opt.model == 'sgl_pix2pix':
+        assert(opt.dataset_mode == 'aligned')
+        from .sgl_pix2pix_model import SglPix2PixModel
+        model = SglPix2PixModel()
+    elif opt.model == 'test':
+        assert(opt.dataset_mode == 'single')
+        from .test_model import TestModel
+        model = TestModel()
+    else:
+        raise NotImplementedError('model [%s] not implemented.' % opt.model)
+    model.initialize(opt)
+    print("model [%s] was created" % (model.name()))
     return model
 
 

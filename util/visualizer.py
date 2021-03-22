@@ -3,14 +3,9 @@ import os
 import sys
 import ntpath
 import time
-from . import util, html
-from subprocess import Popen, PIPE
-
-
-if sys.version_info[0] == 2:
-    VisdomExceptionBase = Exception
-else:
-    VisdomExceptionBase = ConnectionError
+from . import util
+from . import html
+import cv2
 
 
 def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
@@ -36,7 +31,13 @@ def save_images(webpage, visuals, image_path, aspect_ratio=1.0, width=256):
         im = util.tensor2im(im_data)
         image_name = '%s_%s.png' % (name, label)
         save_path = os.path.join(image_dir, image_name)
-        util.save_image(im, save_path, aspect_ratio=aspect_ratio)
+        h, w, _ = im.shape
+        if aspect_ratio > 1.0:
+            im = cv2.resize(src=im, dsize=(h, int(w * aspect_ratio)), interpolation=cv2.INTER_CUBIC)
+        if aspect_ratio < 1.0:
+            im = cv2.resize(src=im, dsize=(int(h / aspect_ratio), w), interpolation=cv2.INTER_CUBIC)
+        util.save_image(im, save_path)
+
         ims.append(image_name)
         txts.append(label)
         links.append(image_name)
@@ -69,9 +70,7 @@ class Visualizer():
         if self.display_id > 0:  # connect to a visdom server given <display_port> and <display_server>
             import visdom
             self.ncols = opt.display_ncols
-            self.vis = visdom.Visdom(server=opt.display_server, port=opt.display_port, env=opt.display_env)
-            if not self.vis.check_connection():
-                self.create_visdom_connections()
+            # self.vis = visdom.Visdom(server=opt.display_server, port=opt.display_port)
 
         if self.use_html:  # create an HTML object at <checkpoints_dir>/web/; images will be saved under <checkpoints_dir>/web/images/
             self.web_dir = os.path.join(opt.checkpoints_dir, opt.name, 'web')

@@ -130,7 +130,12 @@ class BaseModel(ABC):
         visual_ret = OrderedDict()
         for name in self.visual_names:
             if isinstance(name, str):
-                visual_ret[name] = getattr(self, name)
+                if self.name() == "SglPix2PixModel" and name == 'fake_B':
+                        imgs = getattr(self, name)
+                        for i, img in enumerate(imgs):
+                            visual_ret[name + '_' + str(i + 1)] = img
+                else:
+                    visual_ret[name] = getattr(self, name)
         return visual_ret
 
     def get_current_losses(self):
@@ -138,7 +143,13 @@ class BaseModel(ABC):
         errors_ret = OrderedDict()
         for name in self.loss_names:
             if isinstance(name, str):
-                errors_ret[name] = float(getattr(self, 'loss_' + name))  # float(...) works for both scalar tensor and float number
+                # float(...) works for both scalar tensor and float number
+                if self.name() == 'SglPix2PixModel':
+                    losses = getattr(self, 'loss_' + name)
+                    for i, loss in enumerate(losses):
+                        errors_ret[name + '_' + str(i + 1)] = float(loss)
+                else:
+                    errors_ret[name] = float(getattr(self, 'loss_' + name))
         return errors_ret
 
     def save_networks(self, epoch):
@@ -151,7 +162,10 @@ class BaseModel(ABC):
             if isinstance(name, str):
                 save_filename = '%s_net_%s.pth' % (epoch, name)
                 save_path = os.path.join(self.save_dir, save_filename)
-                net = getattr(self, 'net' + name)
+                if self.name() == 'SglPix2PixModel':
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
+                else:
+                    net = getattr(self, 'net' + name)
 
                 if len(self.gpu_ids) > 0 and torch.cuda.is_available():
                     torch.save(net.module.cpu().state_dict(), save_path)
@@ -181,9 +195,12 @@ class BaseModel(ABC):
         """
         for name in self.model_names:
             if isinstance(name, str):
-                load_filename = '%s_net_%s.pth' % (epoch, name)
-                load_path = os.path.join(self.save_dir, load_filename)
-                net = getattr(self, 'net' + name)
+                save_filename = '%s_net_%s.pth' % (which_epoch, name)
+                save_path = os.path.join(self.save_dir, save_filename)
+                if self.name() == 'SglPix2PixModel':
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
+                else:
+                    net = getattr(self, 'net' + name)
                 if isinstance(net, torch.nn.DataParallel):
                     net = net.module
                 print('loading the model from %s' % load_path)
@@ -207,7 +224,11 @@ class BaseModel(ABC):
         print('---------- Networks initialized -------------')
         for name in self.model_names:
             if isinstance(name, str):
-                net = getattr(self, 'net' + name)
+                if self.name() == 'SglPix2PixModel':
+                    net = getattr(self, 'net' + name[0:-1])[int(name[-1]) - 1]
+                else:
+                    net = getattr(self, 'net' + name)
+
                 num_params = 0
                 for param in net.parameters():
                     num_params += param.numel()
